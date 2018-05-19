@@ -32,4 +32,14 @@ Interfaz de linea de comandos para productos y servicios de Google Cloud Platfor
 > gcloud init
 ```
 
+Instalar el Google Cloud SDK para storage (gsutil)
+
+```
+> curl https://sdk.cloud.google.com | bash
+> exec -l $SHELL
+# Reiniciar shell
+> gcloud init
+```
+
+
 

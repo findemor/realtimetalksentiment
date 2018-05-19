@@ -1,5 +1,5 @@
 #!/bin/bash
-tmpdir="./tmp/"
+tmpdir="./images/"
 mkdir $tmpdir
 while true
 do
@@ -10,7 +10,7 @@ do
  echo "Done"
  echo "Enviando a Google Cloud Storage ..."
  gsutil cp $tmpdir/$n_image gs://findemortalksentiment
- echo "Waiting for the next Status ..."
- sleep 2
+ echo "Esperando para la siguiente subida ..."
+ sleep 5
 done
 
