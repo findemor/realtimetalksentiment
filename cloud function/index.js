@@ -55,7 +55,7 @@ exports.newSentimentStatus = function (event, callback) {
       });
 
       const bigquery = BigQuery({
-        projectId: "boosterme-151110"
+        projectId: "realtimesentiment-204610"
       })
 
       var Dataset = bigquery.dataset('realtimesentiment');
@@ -69,7 +69,7 @@ exports.newSentimentStatus = function (event, callback) {
         .table("samples")
         .insert(rows)
         .then((data) => {
-          console.log('Inserted:' + JSON.stringify(data));
+          console.log('Inserted:' + JSON.stringify(data) + " rows: " + JSON.stringify(rows));
           rows.forEach((row) => console.log(row));
         })
         .catch((err) => {
