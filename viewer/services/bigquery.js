@@ -2,6 +2,8 @@
 const BigQuery = require('@google-cloud/bigquery');
 const config = require('../config.json');
 
+const timeoutMs = 10000;
+
 // Your Google Cloud Platform project ID
 const projectId = config.projectId;
 
@@ -17,7 +19,7 @@ function queryData(callback) {
 
     const options = {
         query: sql,
-        timeoutMs: 10000,
+        timeoutMs: timeoutMs,
         useLegacySql: false
     }
     
@@ -35,5 +37,7 @@ function queryData(callback) {
     
 }
 
-module.exports = queryData;
+module.exports = {
+  queryData: queryData
+};
 

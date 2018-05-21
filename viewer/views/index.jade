@@ -1,27 +1,33 @@
 extend layout
 
-block content
-  p
-    | Vivamus hendrerit arcu sed erat molestie
-    | vehicula. Sed auctor neque eu tellus
-    | rhoncus ut eleifend nibh porttitor. Ut in.
-    
-  p
-    | Donec congue lacinia dui, a porttitor
-    | lectus condimentum laoreet. Nunc eu
-    | ullamcorper orci. Quisque eget odio ac
-    | lectus vestibulum faucibus eget in metus.
-    | In pellentesque faucibus vestibulum. Nulla
-    | at nulla justo, eget luctus tortor.
+block headjs
+  script(type="text/javascript", src="https://www.gstatic.com/charts/loader.js")
 
-block sidebar
-  .widget
-    h1 Widget
-    p
-      | Sed auctor neque eu tellus rhoncus ut
-      | eleifend nibh porttitor. Ut in nulla enim.
-    
-    p
-      | Vivamus hendrerit arcu sed erat molestie
-      | vehicula.
+block nav
+  div.container
+    div.navbar-header
+      a.navbar-brand(href="#") Solusoft IDi Sentiment Analysis
+
+block content
+
+  .jumbotron
+    .container
+      .col-md-6
+        img#best_img.img-thumbnail
+      .col-md-6
+        p#gauge_info.bg-primary 
+        div(id="gauge_div", style="width: 540px; height: 200px;")
+  .container
+    div(id="chart_div", style="width: 100%; height: 300px;")
+  hr
+  .container
+    .col-md-8
+      div(id="table_div")
+    .col-md-4
+      div#selected_pie(style="width: 400px; height: 300px;")
+      img#selected_img.img-thumbnail(style="width: 400px; max-height: 400px;")
+
+  script(type="text/javascript").
+    var _data = !{JSON.stringify(data)};
+  script(type="text/javascript", src="/javascript/load_charts.js")
 

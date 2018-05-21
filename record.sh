@@ -1,5 +1,5 @@
 #!/bin/bash
-tmpdir="./images/"
+tmpdir="./viewer/public/images/"
 mkdir $tmpdir
 while true
 do
