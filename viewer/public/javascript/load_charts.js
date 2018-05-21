@@ -1,18 +1,18 @@
-google.charts.load('current', {'packages':['gauge','table','corechart']});
-google.charts.setOnLoadCallback(loadEverything);
-
 const UPDATE_EACH_MS = 5000;
 
+//requisitos de los google charts
+google.charts.load('current', {'packages':['gauge','table','corechart']});
+google.charts.setOnLoadCallback(exec);
+
 var allData = _data; //load initial data (first load)
+var lastRegister = null; //el ultimo registro observado
 
-function loadEverything() {
+//inicia el proceso de carga y visualización e datos
+function exec() {
 
-  if (allData != null && allData.history != null) {
-      drawGauges(allData.history);
-      drawTable(allData.history);
-      drawChart(allData.history);
-      drawBestMoment(allData.history);
-  }
+  const gauges = buildGauges(allData.history);
+  const chart = buildChart(allData.history);
+  const table = buildTable(allData.history);
 
   setInterval(function(){ 
     console.log("fetching new data... since: " + allData.until)
@@ -24,16 +24,16 @@ function loadEverything() {
           allData = res;
         }
         if (res != null && res.history != null) {
-          drawGauges(res.history);
-          drawTable(res.history);
-          drawChart(res.history);
-          drawBestMoment(res.history);
+          addToGauges(gauges, res.history);
+          addToTable(table, res.history);
+          addToChart(chart, res.history);
         }
       }      
     });
   }, UPDATE_EACH_MS);
 }
 
+//llama al API para obtener un nuevo paquete de datos
 function getNewData(since, callback) {
   var url = "api/history";
   var params = "?";
@@ -52,16 +52,12 @@ function getNewData(since, callback) {
   xhttp.send();
 }
 
-
-function drawChart(allData) {
-
-  var arrayData = [['Fecha','Felicidad', 'Sorpresa', 'Enfado', 'Rabia']];
-
-  allData.map(function(x) {
-    arrayData.push(
-      [timeConverter(x.when), x.joy, x.surprise, x.anger, x.sorrow]
-    );
-  });
+//crea el diagrama de areas
+function buildChart() {
+  var arrayData = [
+    ['Fecha','Felicidad', 'Sorpresa', 'Enfado', 'Rabia'],
+    ['',0,0,0,0]
+  ];
 
   var data = google.visualization.arrayToDataTable(arrayData);
 
@@ -74,17 +70,37 @@ function drawChart(allData) {
 
   var chart = new google.visualization.SteppedAreaChart(document.getElementById('chart_div'));
   chart.draw(data, options);
+
+  return { chart: chart, data: data, options: options };
 }
 
-function drawGauges(allData) {
-  let max = null;
+//añade datos al grafico
+function addToChart(chart, data) {
 
-  for(let i = 0; i < allData.length; i++) {
-    if (max == null || max.when < allData[i].when) {
-      max = allData[i];
-    }
+  var arrayData = [];
+
+  if (data != null) {
+    data.map(function(x) {
+      arrayData.push(
+        [timeConverter(x.when), x.joy, x.surprise, x.anger, x.sorrow]
+      );
+    });
   }
-  
+
+  chart.data.insertRows(chart.data.getNumberOfRows(), arrayData);
+
+  const rowsOverflow = chart.data.getNumberOfRows() - 240;//20 minutos, cada 5 segundos
+  if (rowsOverflow > 0) 
+  {
+    for(let i = rowsOverflow; i >= 0; i--)
+      chart.data.removeRow(i);
+  }
+
+  chart.chart.draw(chart.data, chart.options);
+}
+
+//Crea los diagramas de medicion
+function buildGauges(initialData) {
   var options = {
     width: 540, height: 200,
     redFrom: 90, redTo: 100,
@@ -94,22 +110,67 @@ function drawGauges(allData) {
 
   var chart = new google.visualization.Gauge(document.getElementById('gauge_div'));
 
-  if (max != null) {
-    var data = google.visualization.arrayToDataTable([
-      ['Label', 'Value'],
-      ['Felicidad', max.faces > 0 ? max.joy * 100 / max.faces : 0],
-      ['Sorpresa',  max.faces > 0 ? max.surprise * 100 / max.faces : 0],
-      ['Dolor',     max.faces > 0 ? max.sorrow * 100 / max.faces : 0],
-      ['Enfado',    max.faces > 0 ? max.anger * 100 / max.faces : 0]
-    ]);
+  var data = google.visualization.arrayToDataTable([
+    ['Label', 'Value'],
+    ['Felicidad', 0],
+    ['Sorpresa',  0],
+    ['Dolor',     0],
+    ['Enfado',    0]
+  ]);
 
-    document.getElementById("gauge_info").innerHTML = timeConverter(max.when, true);
-
-    chart.draw(data, options);
-  }
+  document.getElementById("gauge_info").innerHTML = "Ultima destacada...";
+  chart.draw(data, options);
+  
+  return { chart: chart, data: data, options: options };
 }
 
-function drawTable(allData) {
+//actualiza los datos del medidor
+function addToGauges(chart, data) {
+
+  if (data != null) {
+    for(let i = 0; i < data.length; i++) {
+      if (lastRegister == null || lastRegister.when < data[i].when) {
+        max = data[i];
+      }
+    }
+  }
+  
+  if (max != null) {
+    chart.data.setValue(0,1, max.faces > 0 ? max.joy * 100 / max.faces : 0);
+    chart.data.setValue(1,1, max.faces > 0 ? max.surprise * 100 / max.faces : 0);
+    chart.data.setValue(2,1, max.faces > 0 ? max.sorrow * 100 / max.faces : 0);
+    chart.data.setValue(3,1, max.faces > 0 ? max.anger * 100 / max.faces : 0);
+
+    document.getElementById("gauge_info").innerHTML = timeConverter(max.when, true);
+    document.getElementById("best_img").src = 'images/1111111.jpg';//'images/' + max.file + '.jpg';
+  }
+
+  chart.chart.draw(chart.data, chart.options);   
+}
+
+function addToTable(chart, data) {
+  var arrayData = [];
+
+  if (data != null) {
+    data.map(function(x) {
+      arrayData.push([timeConverter(x.when), x.faces, x.joy, x.surprise, x.anger, x.sorrow, x.file]);
+    });
+  }
+
+  chart.data.insertRows(chart.data.getNumberOfRows(), arrayData);
+
+  const rowsOverflow = chart.data.getNumberOfRows() - 500;
+  if (rowsOverflow > 0) 
+  {
+    for(let i = rowsOverflow; i >= 0; i--)
+      chart.data.removeRow(i);
+  }
+
+  chart.chart.draw(chart.data, chart.options);
+}
+
+//Crea la tabla de registros
+function buildTable(initialData) {
 
   var data = new google.visualization.DataTable();
   data.addColumn('string', 'Fecha');
@@ -119,10 +180,6 @@ function drawTable(allData) {
   data.addColumn('number', 'Dolor');
   data.addColumn('number', 'Enfado');
   data.addColumn('string', 'file');
-
-  allData.map(function(x) {
-    data.addRows([[timeConverter(x.when), x.faces, x.joy, x.surprise, x.anger, x.sorrow, x.file]])
-  })
 
 
   var table = new google.visualization.Table(document.getElementById('table_div'));
@@ -147,6 +204,8 @@ function drawTable(allData) {
 
     var chart = new google.visualization.PieChart(document.getElementById('selected_pie'));
     chart.draw(data, options);
+
+    return chart;
   }
 
   function drawPhoto(file) {
@@ -171,25 +230,16 @@ function drawTable(allData) {
   }
 
 
- 
+  var options = {showRowNumber: true, width: '100%', height: '100%'};
+
   google.visualization.events.addListener(table, 'select', selectHandler);
-  table.draw(data, {showRowNumber: true, width: '100%', height: '100%'});
-}
+  table.draw(data, options);
 
-function drawBestMoment(allData) {
-  let max = null;
-
-  for(let i = 0; i < allData.length; i++) {
-    if (max == null || max.joy < allData[i].joy) {
-      max = allData[i];
-    }
-  }
-
-  if (max != null)
-    document.getElementById("best_img").src = 'images/1111111.jpg';//'images/' + max.file + '.jpg';
+  return { chart: table, data: data, options: options};
 }
 
 
+//Convierte la hora posix a algo que podamos leer
 function timeConverter(UNIX_timestamp, long){
   var a = new Date(UNIX_timestamp * 1000);
   var year = a.getFullYear();
