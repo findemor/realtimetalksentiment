@@ -83,6 +83,8 @@ Una vez configurado el entorno y subido el codigo de la función, lanzar el fich
 
 Las imagenes comenzaran a publicarse y se activará el evento de la funcion que procesará su contenido.
 
+Para el visor, hay que poner en marcha el viewer/app.js en la misma maquina donde se estan tomando las fotos (ya que se muestran las fotos desde la carpeta local);
+
 
 
 

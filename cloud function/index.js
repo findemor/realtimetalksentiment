@@ -35,11 +35,7 @@ exports.newSentimentStatus = function (event, callback) {
 
     if (numFaces >= 1) {
       faces.forEach(function (face, i) {
-        console.log(`Face #${i + 1}:`);
-        console.log(`  Joy: ${face.joy}`);
-        console.log(`  Anger: ${face.anger}`);
-        console.log(`  Sorrow: ${face.sorrow}`);
-        console.log(`  Surprise: ${face.surprise}`);
+        console.log(`${file.name} Face #${i + 1} Joy: ${face.joy} Anger: ${face.anger} Sorrow: ${face.sorrow} Surprise: ${face.surprise}`);
         if (face.joy) {
           tjoy += 1;
           }
@@ -62,7 +58,7 @@ exports.newSentimentStatus = function (event, callback) {
       var Table = Dataset.table('samples');
 
       console.log(`Recording DATA`);
-      rows = [{'when': ts, 'topic': topic, 'faces': faces.length, 'joy': tjoy, 'anger':tanger, 'sorrow':tsorrow, 'surprise':tsurprise}];
+      rows = [{'when': ts, 'topic': topic, 'faces': faces.length, 'joy': tjoy, 'anger':tanger, 'sorrow':tsorrow, 'surprise':tsurprise, 'file': file.name}];
       console.log('data:' + JSON.stringify(rows));
       bigquery
         .dataset("realtimesentiment")

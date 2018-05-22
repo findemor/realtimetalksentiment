@@ -10,9 +10,19 @@ var lastRegister = null; //el ultimo registro observado
 //inicia el proceso de carga y visualización e datos
 function exec() {
 
-  const gauges = buildGauges(allData.history);
-  const chart = buildChart(allData.history);
-  const table = buildTable(allData.history);
+  var gauges = null, chart = null, table = null;
+  var firstBuild = false;
+
+  function buildCharts(history) {
+    gauges = buildGauges(history);
+    chart = buildTrendlines(history);
+    table = buildTable(history);
+  }
+  
+  if (allData != null && allData.history != null) {
+    firstBuild = true;
+    buildCharts(allData.history);
+  }
 
   setInterval(function(){ 
     console.log("fetching new data... since: " + allData.until)
@@ -23,10 +33,17 @@ function exec() {
         if (res != null) {
           allData = res;
         }
+
         if (res != null && res.history != null) {
-          addToGauges(gauges, res.history);
-          addToTable(table, res.history);
-          addToChart(chart, res.history);
+
+          if (!firstBuild)
+            buildCharts(res.history);
+          else { //update data
+            addToGauges(gauges, res.history);
+            addToTrendlines(chart, res.history);
+            addToTable(table, res.history);
+          }
+
         }
       }      
     });
@@ -50,6 +67,61 @@ function getNewData(since, callback) {
   xhttp.open("GET", url + params, true);
   xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
   xhttp.send();
+}
+
+//crea el diagrama de areas
+function buildTrendlines(initialData) {
+  var arrayData = [
+    [
+      {label: "When", type: "datetime"}, 
+      {label: "Felicidad", type: "number"},
+      {label: "Sorpresa", type: "number"},
+      {label: "Enfado", type: "number"},
+      {label: "Rabia", type: "number"}
+    ]
+  ];
+
+  var data = google.visualization.arrayToDataTable(arrayData);
+
+  var options = {
+    title: 'Tendencia',
+    vAxis: {minValue: 0},
+    hAxis: { textPosition: 'none' },
+    useNumbers: true,
+    trendlines: { 1: {}, 2: {}, 3: {}, 0: {} }
+  };
+
+  var chart = new google.visualization.ScatterChart(document.getElementById('chart_div'));
+  
+  var bChart = { chart: chart, data: data, options: options };
+  addToTrendlines(bChart, initialData);
+
+  return bChart;
+}
+
+//añade datos al grafico
+function addToTrendlines(chart, data) {
+
+  var arrayData = [];
+
+  if (data != null) {
+    data.map(function(x) {
+      arrayData.push(
+        [timeConverter(x.when, false), x.joy, x.surprise, x.anger, x.sorrow]
+      );
+    });
+  }
+
+  chart.data.insertRows(chart.data.getNumberOfRows(), arrayData);
+
+  const rowsOverflow = chart.data.getNumberOfRows() - 100; //100 ultimas muestras
+  if (rowsOverflow > 0) 
+  {
+    for(let i = rowsOverflow; i >= 0; i--)
+      chart.data.removeRow(i);
+  }
+
+  chart.chart.draw(chart.data, chart.options);
 }
 
 //crea el diagrama de areas
@@ -119,9 +191,10 @@ function buildGauges(initialData) {
   ]);
 
   document.getElementById("gauge_info").innerHTML = "Ultima destacada...";
-  chart.draw(data, options);
   
-  return { chart: chart, data: data, options: options };
+  var bChart = { chart: chart, data: data, options: options };
+  addToGauges(bChart, initialData);
+  return bChart
 }
 
 //actualiza los datos del medidor
@@ -142,7 +215,7 @@ function addToGauges(chart, data) {
     chart.data.setValue(3,1, max.faces > 0 ? max.anger * 100 / max.faces : 0);
 
     document.getElementById("gauge_info").innerHTML = timeConverter(max.when, true);
-    document.getElementById("best_img").src = 'images/1111111.jpg';//'images/' + max.file + '.jpg';
+    document.getElementById("best_img").src = 'images/' + max.file;
   }
 
   chart.chart.draw(chart.data, chart.options);   
@@ -153,7 +226,7 @@ function addToTable(chart, data) {
 
   if (data != null) {
     data.map(function(x) {
-      arrayData.push([timeConverter(x.when), x.faces, x.joy, x.surprise, x.anger, x.sorrow, x.file]);
+      arrayData.push([timeConverter(x.when, true), x.faces, x.joy, x.surprise, x.anger, x.sorrow, x.file]);
     });
   }
 
@@ -209,7 +282,7 @@ function buildTable(initialData) {
   }
 
   function drawPhoto(file) {
-    document.getElementById("selected_img").src = 'images/' + file + '.jpg';
+    document.getElementById("selected_img").src = 'images/' + file;
   }
 
   function selectHandler() {
@@ -233,9 +306,13 @@ function buildTable(initialData) {
   var options = {showRowNumber: true, width: '100%', height: '100%'};
 
   google.visualization.events.addListener(table, 'select', selectHandler);
-  table.draw(data, options);
+  
 
-  return { chart: table, data: data, options: options};
+  var bChart = { chart: table, data: data, options: options};
+
+  addToTable(bChart, initialData);
+
+  return bChart;
 }
 
 
@@ -254,7 +331,8 @@ function timeConverter(UNIX_timestamp, long){
     const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
     time = date + ' de ' + months[month] + ' de ' + year + ', ' + hour + ':' + min + ':' + sec;
   } else {
-    time = date + '/' + month + 'T' + hour + ':' + min + ':' + sec ;
+    //time = date + '/' + month + 'T' + hour + ':' + min + ':' + sec ;
+    time = a;
   }
 
   return time;

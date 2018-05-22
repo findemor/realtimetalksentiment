@@ -41,7 +41,7 @@ app.get('/api/history', function (req, res) {
   const since = req.query.since != null ? parseInt(req.query.since) : null;
   const limit = req.query.limit != null ? parseInt(req.query.limit) : null;
 
-  data.getHistory({since: since, limit: limit || 10, callback: function(err, history) {
+  data.getHistory({since: since, limit: limit || 1, callback: function(err, history) {
     res.json({
       history: history,
       until: data.getMaxWhen({ data: history })
