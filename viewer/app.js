@@ -14,6 +14,9 @@ function compile(str, path) {
     .use(nib());
 }
 
+process.env.GOOGLE_APPLICATION_CREDENTIALS = process.env.GOOGLE_APPLICATION_CREDENTIALS || config.GOOGLE_APPLICATION_CREDENTIALS;
+console.log(process.env.GOOGLE_APPLICATION_CREDENTIALS);
+
 app.set('views', __dirname + '/views')
 app.set('view engine', 'jade')
 app.use(express.logger('dev'))
@@ -42,9 +45,12 @@ app.get('/api/history', function (req, res) {
   const limit = req.query.limit != null ? parseInt(req.query.limit) : null;
 
   data.getHistory({since: since, limit: limit || 1, callback: function(err, history) {
+
+    const until = data.getMaxWhen({ data: history });
+
     res.json({
       history: history,
-      until: data.getMaxWhen({ data: history })
+      until: until > 0 ? until : since
     });
   }});
 })

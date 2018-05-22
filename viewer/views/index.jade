@@ -13,7 +13,7 @@ block content
   .jumbotron
     .container
       .col-md-6
-        img#best_img.img-thumbnail(src="default/photo.jpg")
+        img#best_img.img-thumbnail(src="images/default.jpg")
       .col-md-6
         p#gauge_info.bg-primary Esperando por una foto...
         div(id="gauge_div", style="width: 540px; height: 200px;")
@@ -24,8 +24,8 @@ block content
     .col-md-8
       div(id="table_div")
     .col-md-4
-      div#selected_pie(style="width: 400px; height: 300px;")
       img#selected_img.img-thumbnail(style="width: 400px; max-height: 400px;")
+      div#selected_pie(style="width: 400px; height: 300px;")
 
   script(type="text/javascript").
     var _data = !{JSON.stringify(data)};

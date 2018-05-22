@@ -58,7 +58,7 @@ exports.newSentimentStatus = function (event, callback) {
       var Table = Dataset.table('samples');
 
       console.log(`Recording DATA`);
-      rows = [{'when': ts, 'topic': topic, 'faces': faces.length, 'joy': tjoy, 'anger':tanger, 'sorrow':tsorrow, 'surprise':tsurprise, 'file': file.name}];
+      rows = [{'ts': ts, 'topic': topic, 'faces': faces.length, 'joy': tjoy, 'anger':tanger, 'sorrow':tsorrow, 'surprise':tsurprise, 'file': file.name}];
       console.log('data:' + JSON.stringify(rows));
       bigquery
         .dataset("realtimesentiment")

@@ -73,7 +73,7 @@ function getNewData(since, callback) {
 function buildTrendlines(initialData) {
   var arrayData = [
     [
-      {label: "When", type: "datetime"}, 
+      {label: "ts", type: "datetime"}, 
       {label: "Felicidad", type: "number"},
       {label: "Sorpresa", type: "number"},
       {label: "Enfado", type: "number"},
@@ -107,7 +107,7 @@ function addToTrendlines(chart, data) {
   if (data != null) {
     data.map(function(x) {
       arrayData.push(
-        [timeConverter(x.when, false), x.joy, x.surprise, x.anger, x.sorrow]
+        [timeConverter(x.ts, false), x.joy, x.surprise, x.anger, x.sorrow]
       );
     });
   }
@@ -154,7 +154,7 @@ function addToChart(chart, data) {
   if (data != null) {
     data.map(function(x) {
       arrayData.push(
-        [timeConverter(x.when), x.joy, x.surprise, x.anger, x.sorrow]
+        [timeConverter(x.ts), x.joy, x.surprise, x.anger, x.sorrow]
       );
     });
   }
@@ -202,7 +202,7 @@ function addToGauges(chart, data) {
 
   if (data != null) {
     for(let i = 0; i < data.length; i++) {
-      if (lastRegister == null || lastRegister.when < data[i].when) {
+      if (lastRegister == null || lastRegister.ts < data[i].ts) {
         max = data[i];
       }
     }
@@ -214,8 +214,12 @@ function addToGauges(chart, data) {
     chart.data.setValue(2,1, max.faces > 0 ? max.sorrow * 100 / max.faces : 0);
     chart.data.setValue(3,1, max.faces > 0 ? max.anger * 100 / max.faces : 0);
 
-    document.getElementById("gauge_info").innerHTML = timeConverter(max.when, true);
-    document.getElementById("best_img").src = 'images/' + max.file;
+    document.getElementById("gauge_info").innerHTML = timeConverter(max.ts, true);
+
+    if (max.file)
+      document.getElementById("best_img").src = 'images/' + max.file;
+    else 
+      document.getElementById("best_img").src = 'images/default.jpg';
   }
 
   chart.chart.draw(chart.data, chart.options);   
@@ -226,7 +230,7 @@ function addToTable(chart, data) {
 
   if (data != null) {
     data.map(function(x) {
-      arrayData.push([timeConverter(x.when, true), x.faces, x.joy, x.surprise, x.anger, x.sorrow, x.file]);
+      arrayData.push([timeConverter(x.ts, true), x.faces, x.joy, x.surprise, x.anger, x.sorrow, x.file]);
     });
   }
 
@@ -282,7 +286,10 @@ function buildTable(initialData) {
   }
 
   function drawPhoto(file) {
-    document.getElementById("selected_img").src = 'images/' + file;
+    if (!file) 
+      document.getElementById("selected_img").src = 'images/default.jpg';
+    else
+      document.getElementById("selected_img").src = 'images/' + file;
   }
 
   function selectHandler() {

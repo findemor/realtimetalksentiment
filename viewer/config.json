@@ -1,4 +1,5 @@
 {
     "port": 3000,
-    "projectId": "realtimesentiment-204610"
+    "projectId": "realtimesentiment-204610",
+    "GOOGLE_APPLICATION_CREDENTIALS": "/Volumes/HDD/Personal/Certificados/RealTimeSentiment-55589795442f.json"
 }

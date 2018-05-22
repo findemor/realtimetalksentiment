@@ -1,10 +1,11 @@
 #!/bin/bash
 tmpdir="./viewer/public/images/"
+topic1="faces"
 mkdir $tmpdir
 while true
 do
  ts=`date +"%s"`
- n_image="$1.image.${ts}.jpg"
+ n_image="${topic1}.image.${ts}.jpg"
  echo "Creando las imagenes... Sonrie!!! "
  imagesnap -w 3 $tmpdir/$n_image
  echo "Done"

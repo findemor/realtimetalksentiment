@@ -13,9 +13,11 @@ const bigquery = new BigQuery({
 });
 
 
-function queryData(callback) {
+function queryHistory ({ since = null, limit = 100, callback }) {
 
-    const sql = "SELECT 'when',faces, topic, joy, anger, sorrow, surprise FROM `" + projectId + ".realtimesentiment.samples` LIMIT 1000";
+    const sql = "SELECT ts, faces, topic, joy, anger, sorrow, surprise, file FROM `" + projectId + ".realtimesentiment.samples` "
+    + (since != null ? " WHERE ts > " + since : "") 
+    + " LIMIT " + limit;
 
     const options = {
         query: sql,
@@ -27,7 +29,12 @@ function queryData(callback) {
         .query(options)
         .then(results => {
           console.log(JSON.stringify(results));
-          callback(null, results);
+
+          let res = results[0];
+          if (res == null && res.length < 1)
+            res = null;
+
+          callback(null, res);
         })
         .catch(err => {
           console.error('ERROR:', err);
@@ -38,6 +45,6 @@ function queryData(callback) {
 }
 
 module.exports = {
-  queryData: queryData
+  queryHistory: queryHistory
 };
 
