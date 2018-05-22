@@ -77,7 +77,7 @@ function buildTrendlines(initialData) {
       {label: "Felicidad", type: "number"},
       {label: "Sorpresa", type: "number"},
       {label: "Enfado", type: "number"},
-      {label: "Rabia", type: "number"}
+      {label: "Dolor", type: "number"}
     ]
   ];
 
@@ -203,21 +203,27 @@ function addToGauges(chart, data) {
   if (data != null) {
     for(let i = 0; i < data.length; i++) {
       if (lastRegister == null || lastRegister.ts < data[i].ts) {
-        max = data[i];
+        lastRegister = data[i];
       }
     }
   }
   
-  if (max != null) {
-    chart.data.setValue(0,1, max.faces > 0 ? max.joy * 100 / max.faces : 0);
+  if (lastRegister != null) {
+    /*chart.data.setValue(0,1, max.faces > 0 ? max.joy * 100 / max.faces : 0);
     chart.data.setValue(1,1, max.faces > 0 ? max.surprise * 100 / max.faces : 0);
     chart.data.setValue(2,1, max.faces > 0 ? max.sorrow * 100 / max.faces : 0);
-    chart.data.setValue(3,1, max.faces > 0 ? max.anger * 100 / max.faces : 0);
+    chart.data.setValue(3,1, max.faces > 0 ? max.anger * 100 / max.faces : 0);*/
 
-    document.getElementById("gauge_info").innerHTML = timeConverter(max.ts, true);
+    const total = lastRegister.joy + lastRegister.surprise + lastRegister.sorrow + lastRegister.anger;
+    chart.data.setValue(0,1, total > 0 ? lastRegister.joy * 100 / total : 0);
+    chart.data.setValue(1,1, total > 0 ? lastRegister.surprise * 100 / total : 0);
+    chart.data.setValue(2,1, total > 0 ? lastRegister.sorrow * 100 / total : 0);
+    chart.data.setValue(3,1, total > 0 ? lastRegister.anger * 100 / total : 0);
 
-    if (max.file)
-      document.getElementById("best_img").src = 'images/' + max.file;
+    document.getElementById("gauge_info").innerHTML = timeConverter(lastRegister.ts, true);
+
+    if (lastRegister.file)
+      document.getElementById("best_img").src = 'images/' + lastRegister.file;
     else 
       document.getElementById("best_img").src = 'images/default.jpg';
   }
@@ -230,7 +236,7 @@ function addToTable(chart, data) {
 
   if (data != null) {
     data.map(function(x) {
-      arrayData.push([timeConverter(x.ts, true), x.faces, x.joy, x.surprise, x.anger, x.sorrow, x.file]);
+      arrayData.push([timeConverter(x.ts, true), x.faces, x.joy, x.surprise, x.sorrow, x.anger, x.file]);
     });
   }
 
