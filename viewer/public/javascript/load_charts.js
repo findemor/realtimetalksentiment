@@ -124,53 +124,6 @@ function addToTrendlines(chart, data) {
   chart.chart.draw(chart.data, chart.options);
 }
 
-//crea el diagrama de areas
-function buildChart() {
-  var arrayData = [
-    ['Fecha','Felicidad', 'Sorpresa', 'Enfado', 'Rabia'],
-    ['',0,0,0,0]
-  ];
-
-  var data = google.visualization.arrayToDataTable(arrayData);
-
-  var options = {
-    title: 'Sentiments',
-    vAxis: {minValue: 0},
-    hAxis: { textPosition: 'none' },
-    isStacked: true
-  };
-
-  var chart = new google.visualization.SteppedAreaChart(document.getElementById('chart_div'));
-  chart.draw(data, options);
-
-  return { chart: chart, data: data, options: options };
-}
-
-//añade datos al grafico
-function addToChart(chart, data) {
-
-  var arrayData = [];
-
-  if (data != null) {
-    data.map(function(x) {
-      arrayData.push(
-        [timeConverter(x.ts), x.joy, x.surprise, x.anger, x.sorrow]
-      );
-    });
-  }
-
-  chart.data.insertRows(chart.data.getNumberOfRows(), arrayData);
-
-  const rowsOverflow = chart.data.getNumberOfRows() - 240;//20 minutos, cada 5 segundos
-  if (rowsOverflow > 0) 
-  {
-    for(let i = rowsOverflow; i >= 0; i--)
-      chart.data.removeRow(i);
-  }
-
-  chart.chart.draw(chart.data, chart.options);
-}
-
 //Crea los diagramas de medicion
 function buildGauges(initialData) {
   var options = {
@@ -209,16 +162,21 @@ function addToGauges(chart, data) {
   }
   
   if (lastRegister != null) {
-    /*chart.data.setValue(0,1, max.faces > 0 ? max.joy * 100 / max.faces : 0);
-    chart.data.setValue(1,1, max.faces > 0 ? max.surprise * 100 / max.faces : 0);
-    chart.data.setValue(2,1, max.faces > 0 ? max.sorrow * 100 / max.faces : 0);
-    chart.data.setValue(3,1, max.faces > 0 ? max.anger * 100 / max.faces : 0);*/
 
-    const total = lastRegister.joy + lastRegister.surprise + lastRegister.sorrow + lastRegister.anger;
-    chart.data.setValue(0,1, total > 0 ? lastRegister.joy * 100 / total : 0);
-    chart.data.setValue(1,1, total > 0 ? lastRegister.surprise * 100 / total : 0);
-    chart.data.setValue(2,1, total > 0 ? lastRegister.sorrow * 100 / total : 0);
-    chart.data.setValue(3,1, total > 0 ? lastRegister.anger * 100 / total : 0);
+    const maxValue = lastRegister.faces * 5; //5 es el maximo de certeza que puede arrojar cada cara para cada caracteristica
+    
+    //pasamos a porcentaje
+    if (maxValue > 0) {
+      chart.data.setValue(0,1, lastRegister.joy * 100 / maxValue);
+      chart.data.setValue(1,1, lastRegister.surprise * 100 / maxValue);
+      chart.data.setValue(2,1, lastRegister.sorrow * 100 / maxValue);
+      chart.data.setValue(3,1, lastRegister.anger * 100 / maxValue);
+    } else {
+      chart.data.setValue(0,1,0);
+      chart.data.setValue(1,1,0);
+      chart.data.setValue(2,1,0);
+      chart.data.setValue(3,1,0);
+    }
 
     document.getElementById("gauge_info").innerHTML = timeConverter(lastRegister.ts, true);
 

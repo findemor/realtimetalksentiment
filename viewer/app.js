@@ -25,7 +25,7 @@ app.use(express.static(__dirname + '/public'))
 
 app.get('/', function (req, res) {
   async.waterfall([
-    function (callback) { data.getHistory({since: null, limit: 10, callback: callback }) },
+    function (callback) { data.getHistory({since: null, limit: 20, callback: callback }) },
     function (history, callback) { callback(null, history, data.getMaxWhen({ data: history })); },
   ], function (err, history, until) {
     if (err) console.log("ERROR: ", JSON.stringify(err));
@@ -44,7 +44,7 @@ app.get('/api/history', function (req, res) {
   const since = req.query.since != null ? parseInt(req.query.since) : null;
   const limit = req.query.limit != null ? parseInt(req.query.limit) : null;
 
-  data.getHistory({since: since, limit: limit || 1, callback: function(err, history) {
+  data.getHistory({since: since, limit: limit || 10, callback: function(err, history) {
 
     const until = data.getMaxWhen({ data: history });
 

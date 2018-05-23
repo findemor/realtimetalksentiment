@@ -32,15 +32,16 @@ exports.newSentimentStatus = function (event, callback) {
     var tsorrow = 0;
     var tsurprise = 0;
     console.log('Found ' + numFaces + (numFaces === 1 ? ' face' : ' faces'));
+    const MAX = 5;
 
     if (numFaces >= 1) {
       faces.forEach(function (face, i) {
         console.log(`Single Face: ${file.name} Face #${i + 1} Joy: ${face.joy} / ${face.joyLikelihood} Anger: ${face.anger} / ${face.angerLikelihood} Sorrow: ${face.sorrow} / ${face.sorrowLikelihood} Surprise: ${face.surprise} / ${face.surpriseLikelihood}`);
         console.log(`Single Face JSON: `+ JSON.stringify(face));
-        tjoy = tjoy + ((face && face.joyLikelihood > 0) ? face.joyLikelihood : 0);
-        tanger = tanger + ((face && face.angerLikelihood > 0) ? face.angerLikelihood : 0);
-        tsorrow = tsorrow + ((face && face.sorrowLikelihood > 0) ? face.sorrowLikelihood : 0);
-        tsurprise = tsurprise + ((face && face.surpriseLikelihood > 0) ? face.surpriseLikelihood : 0);
+        tjoy = tjoy + ((face && face.joyLikelihood > 0) ? (face.joyLikelihood > MAX ? MAX : face.joyLikelihood) : 0);
+        tanger = tanger + ((face && face.angerLikelihood > 0) ? (face.angerLikelihood > MAX ? MAX : face.angerLikelihood) : 0);
+        tsorrow = tsorrow + ((face && face.sorrowLikelihood > 0) ? (face.sorrowLikelihood > MAX ? MAX : face.sorrowLikelihood) : 0);
+        tsurprise = tsurprise + ((face && face.surpriseLikelihood > 0) ? (face.surpriseLikelihood > MAX ? MAX : face.surpriseLikelihood) : 0);
       });
 
       console.log(`Summary Faces: ${file.name} Joy: ${tjoy} Anger: ${tanger} Sorrow: ${tsorrow} Surprise: ${tsurprise}`);
