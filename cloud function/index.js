@@ -48,7 +48,7 @@ exports.newSentimentStatus = function (event, callback) {
         tsurprise = tsurprise + ((face && face.surpriseLikelihood > 0) ? (face.surpriseLikelihood > MAX ? MAX : face.surpriseLikelihood) : 0);
       });
 
-      console.log(`Summary Faces: ${file.name} Faces: ${tfaces}/${face.numFaces} Joy: ${tjoy} Anger: ${tanger} Sorrow: ${tsorrow} Surprise: ${tsurprise}`);
+      console.log(`Summary Faces: ${file.name} Faces: ${tfaces}/${numFaces} Joy: ${tjoy} Anger: ${tanger} Sorrow: ${tsorrow} Surprise: ${tsurprise}`);
 
       const bigquery = BigQuery({
         projectId: "realtimesentiment-204610"

@@ -15,7 +15,7 @@ const bigquery = new BigQuery({
 
 function queryHistory ({ since = null, limit = 100, callback }) {
 
-    const sql = "SELECT ts, faces, topic, joy, anger, sorrow, surprise, file FROM `" + projectId + ".realtimesentiment.samples` "
+    const sql = "SELECT ts, tfaces, faces, topic, joy, anger, sorrow, surprise, file FROM `" + projectId + ".realtimesentiment.samples` "
     + (since != null ? " WHERE ts > " + since : "") 
     + " ORDER BY ts desc"
     + " LIMIT " + limit;

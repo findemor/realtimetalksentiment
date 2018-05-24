@@ -216,7 +216,7 @@ function buildTable(initialData) {
   var data = new google.visualization.DataTable();
   data.addColumn('string', 'Fecha');
   data.addColumn('number', 'Caras');
-  data.addColumn('number', 'Caras con sentimiento');
+  data.addColumn('number', 'Moods');
   data.addColumn('number', 'Felicidad');
   data.addColumn('number', 'Sorpresa');
   data.addColumn('number', 'Dolor');
@@ -261,12 +261,13 @@ function buildTable(initialData) {
     var selectedItem = table.getSelection()[0];
     if (selectedItem) {
       let item = {
-        file: data.getValue(selectedItem.row, 6),
+        file: data.getValue(selectedItem.row, 7),
         faces: data.getValue(selectedItem.row, 1),
-        joy: data.getValue(selectedItem.row, 2),
-        surprise: data.getValue(selectedItem.row, 3),
-        sorrow: data.getValue(selectedItem.row, 4),
-        anger: data.getValue(selectedItem.row, 5) 
+        tfaces: data.getValue(selectedItem.row, 2),
+        joy: data.getValue(selectedItem.row, 3),
+        surprise: data.getValue(selectedItem.row, 4),
+        sorrow: data.getValue(selectedItem.row, 5),
+        anger: data.getValue(selectedItem.row, 6) 
       };
 
       drawPie(item);
