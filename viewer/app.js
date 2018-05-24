@@ -24,8 +24,13 @@ app.use(stylus.middleware({ src: __dirname + '/public', compile: compile}))
 app.use(express.static(__dirname + '/public'))
 
 app.get('/', function (req, res) {
+
+  const todayDate = new Date();
+  const todayWithoutTime = now.setHours(0,0,0,0);
+  const sinceToday = Math.floor(todayWithoutTime / 1000);
+
   async.waterfall([
-    function (callback) { data.getHistory({since: null, limit: 20, callback: callback }) },
+    function (callback) { data.getHistory({since: sinceToday, limit: 20, callback: callback }) },
     function (history, callback) { callback(null, history, data.getMaxWhen({ data: history })); },
   ], function (err, history, until) {
     if (err) console.log("ERROR: ", JSON.stringify(err));

@@ -33,18 +33,22 @@ exports.newSentimentStatus = function (event, callback) {
     var tsurprise = 0;
     console.log('Found ' + numFaces + (numFaces === 1 ? ' face' : ' faces'));
     const MAX = 5;
+    var tfaces = 0; //caras que muestran alguna emocion
 
     if (numFaces >= 1) {
       faces.forEach(function (face, i) {
         console.log(`Single Face: ${file.name} Face #${i + 1} Joy: ${face.joy} / ${face.joyLikelihood} Anger: ${face.anger} / ${face.angerLikelihood} Sorrow: ${face.sorrow} / ${face.sorrowLikelihood} Surprise: ${face.surprise} / ${face.surpriseLikelihood}`);
         console.log(`Single Face JSON: `+ JSON.stringify(face));
+
+        if (face.joyLikelihood > 0 || face.angerLikelihood > 0 || face.sorrowLikelihood > 0 || face.surpriseLikelihood > 0) tfaces += 1; 
+
         tjoy = tjoy + ((face && face.joyLikelihood > 0) ? (face.joyLikelihood > MAX ? MAX : face.joyLikelihood) : 0);
         tanger = tanger + ((face && face.angerLikelihood > 0) ? (face.angerLikelihood > MAX ? MAX : face.angerLikelihood) : 0);
         tsorrow = tsorrow + ((face && face.sorrowLikelihood > 0) ? (face.sorrowLikelihood > MAX ? MAX : face.sorrowLikelihood) : 0);
         tsurprise = tsurprise + ((face && face.surpriseLikelihood > 0) ? (face.surpriseLikelihood > MAX ? MAX : face.surpriseLikelihood) : 0);
       });
 
-      console.log(`Summary Faces: ${file.name} Joy: ${tjoy} Anger: ${tanger} Sorrow: ${tsorrow} Surprise: ${tsurprise}`);
+      console.log(`Summary Faces: ${file.name} Faces: ${tfaces}/${face.numFaces} Joy: ${tjoy} Anger: ${tanger} Sorrow: ${tsorrow} Surprise: ${tsurprise}`);
 
       const bigquery = BigQuery({
         projectId: "realtimesentiment-204610"
@@ -54,7 +58,7 @@ exports.newSentimentStatus = function (event, callback) {
       var Table = Dataset.table('samples');
 
       console.log(`Recording DATA`);
-      rows = [{'ts': ts, 'topic': topic, 'faces': faces.length, 'joy': tjoy, 'anger':tanger, 'sorrow':tsorrow, 'surprise':tsurprise, 'file': file.name}];
+      rows = [{'ts': ts, 'topic': topic, 'faces': faces.length, 'tfaces': tfaces, 'joy': tjoy, 'anger':tanger, 'sorrow':tsorrow, 'surprise':tsurprise, 'file': file.name}];
       console.log('data:' + JSON.stringify(rows));
       bigquery
         .dataset("realtimesentiment")

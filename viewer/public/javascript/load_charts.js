@@ -114,7 +114,7 @@ function addToTrendlines(chart, data) {
 
   chart.data.insertRows(chart.data.getNumberOfRows(), arrayData);
 
-  const rowsOverflow = chart.data.getNumberOfRows() - 100; //100 ultimas muestras
+  const rowsOverflow = chart.data.getNumberOfRows() - 24; //24 ultimas muestras
   if (rowsOverflow > 0) 
   {
     for(let i = rowsOverflow; i >= 0; i--)
@@ -163,7 +163,7 @@ function addToGauges(chart, data) {
   
   if (lastRegister != null) {
 
-    const maxValue = lastRegister.faces * 5; //5 es el maximo de certeza que puede arrojar cada cara para cada caracteristica
+    const maxValue = lastRegister.tfaces * 5; //5 es el maximo de certeza que puede arrojar cada cara para cada caracteristica
     
     //pasamos a porcentaje
     if (maxValue > 0) {
@@ -200,7 +200,7 @@ function addToTable(chart, data) {
 
   chart.data.insertRows(chart.data.getNumberOfRows(), arrayData);
 
-  const rowsOverflow = chart.data.getNumberOfRows() - 500;
+  const rowsOverflow = chart.data.getNumberOfRows() - 100;
   if (rowsOverflow > 0) 
   {
     for(let i = rowsOverflow; i >= 0; i--)
