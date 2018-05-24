@@ -194,7 +194,7 @@ function addToTable(chart, data) {
 
   if (data != null) {
     data.map(function(x) {
-      arrayData.push([timeConverter(x.ts, true), x.faces, x.joy, x.surprise, x.sorrow, x.anger, x.file]);
+      arrayData.push([timeConverter(x.ts, true), x.faces, x.tfaces, x.joy, x.surprise, x.sorrow, x.anger, x.file]);
     });
   }
 
@@ -216,6 +216,7 @@ function buildTable(initialData) {
   var data = new google.visualization.DataTable();
   data.addColumn('string', 'Fecha');
   data.addColumn('number', 'Caras');
+  data.addColumn('number', 'Caras con sentimiento');
   data.addColumn('number', 'Felicidad');
   data.addColumn('number', 'Sorpresa');
   data.addColumn('number', 'Dolor');
